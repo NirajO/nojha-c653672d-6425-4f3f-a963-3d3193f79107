@@ -1,8 +1,8 @@
 # Role-Based Task Management System (NX Monorepo)
 This project is a full-stack role-based access control (RBAC) task management system built using an # NX monorepo, containing:
-	1. Backend (NestJS API) - Authentication, RBAC, organizations, tasks
-	2. Frontend (Angular Dashboard) - Login, role-aware UI, task management
-	3. Shared Libraries - Shared TypeScript models, auth utilities, and UI components
+1. Backend (NestJS API) - Authentication, RBAC, organizations, tasks
+2. Frontend (Angular Dashboard) - Login, role-aware UI, task management
+3. Shared Libraries - Shared TypeScript models, auth utilities, and UI components
 
 # 1. Clone Repository
 git clone <repo-url>
