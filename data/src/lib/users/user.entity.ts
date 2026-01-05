@@ -25,8 +25,8 @@ export class User {
   })
   role!: Role;
 
-  @ManyToOne(() => Organization, { eager: true})
-  organization!: Organization;
+  @ManyToOne(() => Organization, org => org.users, { eager: false})
+  organization: Organization;
 
   @CreateDateColumn()
   createdAt!: Date;

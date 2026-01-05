@@ -5,7 +5,7 @@ import {
   OneToMany,
   ManyToOne,
 } from 'typeorm';
-//import { User } from '../users/user.entity';
+import { User } from '@org/data/src/lib/users/user.entity.js';
 
 @Entity()
 export class Organization {
