@@ -1,104 +1,133 @@
-# New Nx Repository
+# Role-Based Task Management System (NX Monorepo)
+This project is a full-stack role-based access control (RBAC) task management system built using an # NX monorepo, containing:
+	1. Backend (NestJS API) - Authentication, RBAC, organizations, tasks
+	2. Frontend (Angular Dashboard) - Login, role-aware UI, task management
+	3. Shared Libraries - Shared TypeScript models, auth utilities, and UI components
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+# 1. Clone Repository
+git clone <repo-url>
+cd <repo-folder>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+# 2. Install Dependencies
+npm install
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+# 3. Environment Variables 
+JWT_SECRET=supersecretkey
+JWT_EXPIRES_IN=1d
 
-## Generate a library
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_DATABASE=rbac
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
+# 4. Run Applications
+# Backend (NestJS API)
+nx serve api
 
-## Run tasks
+API runs at:
+http://localhost:3333
 
-To build the library use:
+# Frontend (Angular Dashboard)
+nx serve dashboard
 
-```sh
-npx nx build pkg1
-```
+# Dashboard runs at:
+http://localhost:4200
 
-To run any task with Nx use:
+# 🏛️ Architecture Overview
+This monorepo uses NX to organize applications and shared libraries.
+# Structure
+root/ 
+	api/          # NestJS backend
+	dashboard/    # Angular dashboard
+	data/					# Shared TypeORM entities, enums, interfaces
+	auth/					# Shared Auth Logic (API)
+	libs/
+		auth-ui/		# Shared UI components/services for frontend
 
-```sh
-npx nx <target> <project-name>
-```
+# Why NX?
+1. Modular structure
+2. Shared logic across backend & frontend
+3. Fast builds (caching, dependency graphing)
+4. Cleaner architecture for large systems
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+# 🗄️ Data Model Explanation
+The core entities:
+| Entity           | Description                          |
+| ---------------- | ------------------------------------ |
+| **User**         | Has role, belongs to an organization |
+| **Organization** | Supports hierarchical structure      |
+| **Task**         | Created/owned by a user              |
+| **Role Enum**    | ADMIN, MANAGER, VIEWER               |
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# ERD (Text Representation)
+Organization (1) ───── (∞) User
+     ↑                      │
+     └──── parent-child     │
+                            │
+User (1) ─────── (∞) Task
 
-## Versioning and releasing
+Users inherit permissions from their organization
+Tasks are only accessible based on RBAC rules
 
-To version and release the library use
+# 🔐 Access Control Implementation
+Role Permissions
+ADMIN: full control over all orgs
+MANAGER: manage tasks in their log
+VIEWER: read-only
 
-```
-npx nx release
-```
+# JWT Authentication Flow
+1. User logs in -> receives JWT containing:
+   userId
+   role
+   organizationId
+2. Token is stored in localStorage
+3. Frontend attaches token via HttpInterceptor
+4. Backend uses guards + role checks to determine access
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+# Organization Hierarchy Rules 
+Example:
+Parent Org
+ ├── Child Org A
+ ├── Child Org B
+Admin sees everything
+Manager sees own org and children
+Viewer sees read-only tasks
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# 📘 API Documentation
+1. Auth
+	POST /auth/login
+2. Organizations
+   GET /organizations
+   Returns org tree.
+   
+   POST/organizations
+   Admin-only
+3. Taks
+   GET /tasks
+   Returns tasks permitted by user's role.
 
-## Keep TypeScript project references up to date
+	 POST /tasks
+   Create task.
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+	 PUT /tasks/:id
+	 Update task (Manager/Admin)
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+   DELETE /tasks/:id
+   Delete task.
 
-```sh
-npx nx sync
-```
+# 🧭 Future Considerations
+# 1. Advanced Role Delegation
+   1. Temporary permissions
+   2. Team-based access rules
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+# 2. Production Security Imporvements
+	1. JWT refresh token
+	2. CSRF protection
+	3. Rate limiting
+	4. RBAC caching
 
-```sh
-npx nx sync:check
-```
+# 3. Scaling Acces Control
+	1. Precomputed hierarchies
+	2. Cached permission trees
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
-
-## Nx Cloud
-
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Set up CI (non-Github Actions CI)
-
-**Note:** This is only required if your CI provider is not GitHub Actions.
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
