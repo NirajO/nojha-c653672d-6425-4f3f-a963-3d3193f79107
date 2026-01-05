@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+
+    "target": "ES2021",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+
+    "verbatimModuleSyntax": true
+  },
+  "include": ["src/**/*.ts"]
+}
